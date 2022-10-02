@@ -8,13 +8,19 @@ from uuid import uuid4
 class BaseModel:
     '''A class that defines all common attributes/methods for other classes'''
 
-    def __init__(self) -> None:
+    def __init__(self, *args, **kwargs) -> None:
+        if kwargs:
+            for k, v in kwargs.items():
+                if k != "__class__":
+                    if k == "created_at" or k == "updated_at":
+                        v = datetime.strptime(v, "%Y-%m-%dT%H:%M:%S.%f")
+                    setattr(self,k,v)
         self.id = str(uuid4())
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
 
     def __str__(self):
-        return '[{}] ({}) <{}>'.format(self.__class__.__name__, self.id, self.__dict__)
+        return '[{}] ({}) {}'.format(self.__class__.__name__, self.id, self.__dict__)
 
     def save(self) -> None:
         '''updates the public instance attribute updated_at with the current datetime'''
